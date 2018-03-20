@@ -18,22 +18,30 @@ class KMeans(object):
     """
     # save the change of centroids position after updating
     change = np.ones(self.num_clusters)
+    self.centroids = np.random.randn(self.num_clusters, X.shape[1])
 
-    while (all(num > epsilon for num in change)):
+    while (np.any(change > epsilon)):
         #########################################################################
         # TODO:                                                                 #
         # Compute the l2 distance between all test points and all cluster       #
         # centroid then assign them to the nearest centroid.                    #
         #########################################################################
-        pass
+        dists = self.compute_distances_one_loop(X)
+        nearest = self.predict_labels(dists)
         #########################################################################
         # TODO:                                                                 #
         # After assigning data to the nearest centroid, recompute the centroids #
         # then calculate the differrent between old centroids and the new one   #
         #########################################################################
         new_centroids = np.zeros(self.centroids.shape)
-        break
-        pass
+        for i in range(self.num_clusters):
+            if np.any(nearest == i):
+                new_centroids[i] = X[nearest == i].mean(axis=0)
+            else:
+                new_centroids[i] = self.centroids[i]
+        
+        change = np.abs(new_centroids - self.centroids)
+        self.centroids = new_centroids
         #########################################################################
         #                         END OF YOUR CODE                              #
         #########################################################################
@@ -106,7 +114,7 @@ class KMeans(object):
       # Compute the l2 distance between the ith test point and all cluster  #
       # centroids, and store the result in dists[i, :].                     #
       #######################################################################
-      pass
+      dists[i,:] = ((self.centroids - X[i]) ** 2).sum(axis=1) ** 0.5
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -152,22 +160,5 @@ class KMeans(object):
     - y: A numpy array of shape (num_test,) containing predicted cluster for the
       test data, where y[i] is the predicted cluster for the test point X[i].  
     """
-    num_test = dists.shape[0]
-    y_pred = np.zeros(num_test)
-    for i in range(num_test):
-      # A list of length k storing the labels of the k nearest neighbors to
-      # the ith test point.
-      closest_y = []
-      #########################################################################
-      # TODO:                                                                 #
-      # Use the distance matrix to find the nearest cluster of the ith        #
-      # testing point.                                                        #
-      # Hint: Look up the function numpy.argsort.                             #
-      #########################################################################
-      pass
-      #########################################################################
-      #                           END OF YOUR CODE                            # 
-      #########################################################################
-
-    return y_pred
+    return np.argmax(dists, axis=1)
 
